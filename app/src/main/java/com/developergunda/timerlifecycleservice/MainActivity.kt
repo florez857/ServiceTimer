@@ -3,9 +3,12 @@ package com.developergunda.timerlifecycleservice
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import com.developergunda.timerlifecycleservice.model.TimerEvent
 import com.developergunda.timerlifecycleservice.service.TimerService
 import com.developergunda.timerlifecycleservice.util.Constant
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,6 +19,24 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener {
             sendCommandToServie(Constant.ACTION_START_SERVICE)
         }
+
+        startObserver()
+    }
+
+    private fun startObserver() {
+
+        TimerService.timerEvent.observe(this, Observer {
+
+            when (it) {
+
+                is TimerEvent.START -> {
+                    Timber.d("Iniciamos el service evento start")
+                }
+                is TimerEvent.END -> {
+                    Timber.d("Detenemos el service, evento end ")
+                }
+            }
+        })
     }
 
     private fun sendCommandToServie(action: String) {
