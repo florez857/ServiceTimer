@@ -12,16 +12,26 @@ import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
+    var isTimerEnable = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         fab.setOnClickListener {
-            sendCommandToServie(Constant.ACTION_START_SERVICE)
+            toogleTimer()
         }
-
         startObserver()
     }
+
+    private fun toogleTimer() {
+        if (isTimerEnable) {
+            sendCommandToServie(Constant.ACTION_STP_SERVICE)
+        } else {
+            sendCommandToServie(Constant.ACTION_START_SERVICE)
+        }
+    }
+
 
     private fun startObserver() {
 
@@ -30,9 +40,13 @@ class MainActivity : AppCompatActivity() {
             when (it) {
 
                 is TimerEvent.START -> {
+                    isTimerEnable = true
+                    fab.setImageResource(R.drawable.twotone_stop_black_18)
                     Timber.d("Iniciamos el service evento start")
                 }
                 is TimerEvent.END -> {
+                    isTimerEnable = false
+                    fab.setImageResource(R.drawable.twotone_alarm_black_18)
                     Timber.d("Detenemos el service, evento end ")
                 }
             }
