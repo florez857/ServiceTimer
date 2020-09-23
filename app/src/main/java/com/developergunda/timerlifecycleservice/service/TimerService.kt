@@ -17,6 +17,10 @@ import com.developergunda.timerlifecycleservice.MainActivity
 import com.developergunda.timerlifecycleservice.R
 import com.developergunda.timerlifecycleservice.model.TimerEvent
 import com.developergunda.timerlifecycleservice.util.Constant
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TimerService : LifecycleService() {
 
@@ -26,9 +30,12 @@ class TimerService : LifecycleService() {
     }
 
     private lateinit var notificationManager: NotificationManagerCompat
+    private var isStopedService = false
+
     override fun onCreate() {
         super.onCreate()
         notificationManager = NotificationManagerCompat.from(this)
+        initValues()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -48,9 +55,28 @@ class TimerService : LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    private fun initValues() {
+        timerEvent.postValue(TimerEvent.END)
+        timerMillis.postValue(0L)
+    }
+
+    private fun startTimer() {
+
+        val timerStarted = System.currentTimeMillis()
+        CoroutineScope(Dispatchers.Main).launch {
+            while (!isStopedService && timerEvent.value!! == TimerEvent.START) {
+                val lapTime = System.currentTimeMillis() - timerStarted
+                timerMillis.postValue(lapTime)
+                delay(50L)
+            }
+        }
+
+    }
 
     private fun startForeGroundService() {
+
         timerEvent.postValue(TimerEvent.START)
+        startTimer()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannelNotification()
 
@@ -59,7 +85,8 @@ class TimerService : LifecycleService() {
     }
 
     private fun stopSrvice() {
-        timerEvent.postValue(TimerEvent.END)
+        isStopedService = true
+        initValues()
         notificationManager.cancel(Constant.NOTIFICATION_ID)
         stopForeground(true)
         stopSelf()

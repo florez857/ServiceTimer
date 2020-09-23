@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import com.developergunda.timerlifecycleservice.model.TimerEvent
 import com.developergunda.timerlifecycleservice.service.TimerService
 import com.developergunda.timerlifecycleservice.util.Constant
+import com.developergunda.timerlifecycleservice.util.TimerUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
@@ -50,6 +51,12 @@ class MainActivity : AppCompatActivity() {
                     Timber.d("Detenemos el service, evento end ")
                 }
             }
+        })
+
+
+        TimerService.timerMillis.observe(this, Observer {
+            tvTimer.text = TimerUtil.getFormattedTime(it, true)
+
         })
     }
 
