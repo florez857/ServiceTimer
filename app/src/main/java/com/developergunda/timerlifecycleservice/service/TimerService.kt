@@ -13,10 +13,12 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.NotificationManagerCompat.IMPORTANCE_LOW
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.developergunda.timerlifecycleservice.MainActivity
 import com.developergunda.timerlifecycleservice.R
 import com.developergunda.timerlifecycleservice.model.TimerEvent
 import com.developergunda.timerlifecycleservice.util.Constant
+import com.developergunda.timerlifecycleservice.util.TimerUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -82,6 +84,15 @@ class TimerService : LifecycleService() {
 
         }
         startForeground(Constant.NOTIFICATION_ID, getNotificationBuilde().build())
+
+        timerMillis.observe(this, Observer {
+            if (!isStopedService) {
+                val builder = getNotificationBuilde().setContentText(
+                    TimerUtil.getFormattedTime(it, false)
+                )
+                notificationManager.notify(Constant.NOTIFICATION_ID, builder.build())
+            }
+        })
     }
 
     private fun stopSrvice() {

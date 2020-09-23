@@ -56,7 +56,6 @@ class MainActivity : AppCompatActivity() {
 
         TimerService.timerMillis.observe(this, Observer {
             tvTimer.text = TimerUtil.getFormattedTime(it, true)
-
         })
     }
 
